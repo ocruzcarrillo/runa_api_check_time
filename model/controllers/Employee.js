@@ -89,7 +89,7 @@ const Employee = {
     const findOneQuery = 'SELECT * FROM employee WHERE id_employee=$1';
     const updateOneQuery =`UPDATE employee
       SET finish_date=$1,active=$2,username=$3,password_hash=$4,administrator=$5
-      WHERE id=$6 returning *`;
+      WHERE id_employee=$6 returning *`;
     try {
       const { rows } = await db.query(findOneQuery, [req.params.id]);
       if(!rows[0]) {
@@ -172,7 +172,120 @@ const Employee = {
     } catch(error) {
       return res.status(400).send(error)
     }
-  }
+  },
+  /**
+   * Create A Info Employee
+   * @param {object} req 
+   * @param {object} res
+   * @returns {object} employee object 
+   */
+  async createInfo(req, res) {
+	if (!req.body.id_employee || !req.body.id_type_info) {
+	  var missing_values = new Array();
+	  if (!req.body.id_employee) {
+		  missing_values.push('id_employee');
+	  }
+	  if (!req.body.id_type_info) {
+		  missing_values.push('id_type_info');
+	  }
+      return res.status(400).send({'message': 'Some values are missing: ' + JSON.stringify(missing_values)});
+    }
+	
+    const text = `INSERT INTO
+      employee_info(id_employee, id_type_info, info)
+      VALUES($1, $2, $3)
+      returning *`;
+    const values = [
+      req.params.id,
+      req.body.id_type_info,
+      req.body.info
+    ];
+
+    try {
+      const { rows } = await db.query(text, values);
+      return res.status(201).send(rows[0]);
+    } catch(error) {
+      return res.status(400).send(error);
+    }
+  },
+  /**
+   * Get All Employee
+   * @param {object} req 
+   * @param {object} res 
+   * @returns {object} employee array
+   */
+  async getAllInfo(req, res) {
+    const findAllQuery = 'SELECT * FROM employee_info';
+    try {
+      const { rows, rowCount } = await db.query(findAllQuery);
+      return res.status(200).send({ rows, rowCount });
+    } catch(error) {
+      return res.status(400).send(error);
+    }
+  },
+  /**
+   * Get A Employee
+   * @param {object} req 
+   * @param {object} res
+   * @returns {object} employee object
+   */
+  async getOneInfo(req, res) {
+    const text = 'SELECT * FROM employee_info WHERE id_employee = $1';
+    try {
+      const { rows } = await db.query(text, [req.params.id]);
+      if (!rows[0]) {
+        return res.status(404).send({'message': 'employee_info not found'});
+      }
+      return res.status(200).send(rows[0]);
+    } catch(error) {
+      return res.status(400).send(error)
+    }
+  },
+  /**
+   * Update A Employee
+   * @param {object} req 
+   * @param {object} res 
+   * @returns {object} updated employee
+   */
+  async updateInfo(req, res) {
+    const findOneQuery = 'SELECT * FROM employee_info WHERE id_employee=$1 and id_type_info=$2';
+    const updateOneQuery =`UPDATE employee_info
+      SET info=$1
+      WHERE id_employee=$2 and id_type_info=$3 returning *`;
+    try {
+      const { rows } = await db.query(findOneQuery, [req.params.id, req.body.id_type_info]);
+      if(!rows[0]) {
+        return res.status(404).send({'message': 'employee_info not found'});
+      }
+      const values = [
+        req.body.info || rows[0].info,
+        req.params.id || rows[0].id_employee,
+        req.body.id_type_info || rows[0].id_type_info
+      ];
+      const response = await db.query(updateOneQuery, values);
+      return res.status(200).send(response.rows[0]);
+    } catch(err) {
+      return res.status(400).send(err);
+    }
+  },
+  /**
+   * Delete A Employee
+   * @param {object} req 
+   * @param {object} res 
+   * @returns {void} return statuc code 204 
+   */
+  async deleteInfo(req, res) {
+    const deleteQuery = 'UPDATE employee_info SET finish_date=now() WHERE id_employee=$1 and id_type_info=$2 returning *';
+    try {
+      const { rows } = await db.query(deleteQuery, [req.params.id, req.body.id_type_info]);
+      if(!rows[0]) {
+        return res.status(404).send({'message': 'employee_info not found'});
+      }
+      return res.status(204).send({ 'message': 'deleted' });
+    } catch(error) {
+      return res.status(400).send(error);
+    }
+  },
 }
 
 module.exports = Employee;

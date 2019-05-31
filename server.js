@@ -11,6 +11,7 @@ const Auth = require('./model/auth/Auth');
 
 var apiRouterEmployee = require('./routes/employee');
 var apiRouterCatalog = require('./routes/catalog');
+var apiRouterCheckTime = require('./routes/checkTime');
 
 const app = express()
 app.use(bodyParser.json())
@@ -27,6 +28,7 @@ app.use(function(request, response, next) {
 });
 app.use('/api/employee', Auth.verifyToken, apiRouterEmployee);
 app.use('/api/catalog', Auth.verifyToken, apiRouterCatalog);
+app.use('/api/checkTime', Auth.verifyToken, apiRouterCheckTime);
 
 app.get('/api/checkToken', Auth.checkToken	);
 app.get('/', (request, response) => {
