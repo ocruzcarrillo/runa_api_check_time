@@ -43,7 +43,7 @@ router.get('/info/:id', function(req, res, next) {
 });
 
 /* SAVE INFO */
-router.post('/info/', function(req, res, next) {
+router.post('/info/:id', function(req, res, next) {
   Employee.createInfo(req, res);
 });
 
