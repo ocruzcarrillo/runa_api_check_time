@@ -1,4 +1,4 @@
-# runa_check_time_app
+# runa_api_check_time
 Check Time App, is an exercise to apply a job opportunity in Runa.
 
 Functional Requirements:
@@ -23,11 +23,50 @@ npm init
 
 Install the dependencies
 ```bash
-npm install @material-ui/core @material-ui/icons connect express material-table moment react react-dom react-redux react-router-dom react-scripts redux redux-form redux-observable rxjs serve-static
+npm install bcrypt body-parser cors dotenv express jsonwebtoken make-runnable moment pg uuid
+```
+
+Scripts for Database Creation
+```bash
+CREATE DATABASE runa_check_time
+    WITH 
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    CONNECTION LIMIT = -1;
+
+COMMENT ON DATABASE runa_check_time
+    IS 'This is a exercise for job application in Runa';
+	
+CREATE USER runa_check_time_user WITH
+	LOGIN
+	NOSUPERUSER
+	NOCREATEDB
+	NOCREATEROLE
+	INHERIT
+	REPLICATION
+	CONNECTION LIMIT -1
+	PASSWORD 'run4us3r';
+GRANT pg_execute_server_program TO runa_check_time_user WITH ADMIN OPTION;
+COMMENT ON ROLE runa_check_time_user IS 'This is a user for the little system';
+```
+
+Create Tables
+```bash
+node db createTables
+```
+
+Init Populate Tables
+```bash
+node db populateTables
+```
+
+It was necessary
+```bash
+node db dropTables
 ```
 
 ## Usage
 
 ```bash
-npm start
+node server.js
 ```
